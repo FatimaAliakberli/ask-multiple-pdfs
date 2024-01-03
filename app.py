@@ -85,12 +85,18 @@ def main():
     load_dotenv()
     st.set_page_config(page_title="Chat with multiple PDFs", page_icon=":books:")
     st.write(css, unsafe_allow_html=True)
-    if "conversation" not in st.session_state:
-        st.session_state.conversation = None
-    if "chat_history" not in st.session_state:
+
+    # Initialize conversation chain if not already created
+    if "conversation" not in st.session_state or st.session_state.conversation is None:
+        OPENAI_API_KEY, HUGGINGFACEHUB_API_TOKEN = get_api_keys()
+        text_chunks = get_text_chunks("")  # Replace with actual text
+        vectorstore = get_vectorstore(text_chunks)
+        st.session_state.conversation = get_conversation_chain(
+            vectorstore, OPENAI_API_KEY, HUGGINGFACEHUB_API_TOKEN)
         st.session_state.chat_history = None
+
     st.header("Chat with multiple PDFs :books:")
-    
+
     # Get API keys from user input
     OPENAI_API_KEY, HUGGINGFACEHUB_API_TOKEN = get_api_keys()
     user_question = st.text_input("Ask a question about your documents:")
@@ -108,10 +114,10 @@ def main():
                 text_chunks = get_text_chunks(raw_text)
                 # create vector store
                 vectorstore = get_vectorstore(text_chunks)
-                # create conversation chain
-                st.session_state.conversation = get_conversation_chain(
-                    vectorstore, OPENAI_API_KEY, HUGGINGFACEHUB_API_TOKEN)
-# Modify get_conversation_chain function to accept API keys
+                # create conversation chain if not already created
+                if "conversation" not in st.session_state or st.session_state.conversation is None:
+                    st.session_state.conversation = get_conversation_chain(
+                        vectorstore, OPENAI_API_KEY, HUGGINGFACEHUB_API_TOKEN)
 
 if __name__ == '__main__':
     main()
