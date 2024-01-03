@@ -9,6 +9,9 @@ from langchain.memory import ConversationBufferMemory
 from langchain.chains import ConversationalRetrievalChain
 from htmlTemplates import css, bot_template, user_template
 from langchain.llms import HuggingFaceHub
+import os 
+os.environ["OPENAI_API_KEY"] = "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"
+
 
 def get_pdf_text(pdf_docs):
     text = ""
