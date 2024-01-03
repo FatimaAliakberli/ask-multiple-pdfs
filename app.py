@@ -11,6 +11,7 @@ from htmlTemplates import css, bot_template, user_template
 
 # Load environment variables
 load_dotenv()
+openai_api_key = None
 
 # Function to get text from PDFs
 def get_pdf_text(pdf_docs):
