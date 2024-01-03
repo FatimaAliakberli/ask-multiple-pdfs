@@ -104,6 +104,25 @@ def main():
     if st.session_state.conversation is None:
         st.session_state.conversation = get_conversation_chain(vectorstore, OPENAI_API_KEY, HUGGINGFACEHUB_API_TOKEN)
 
+    # Move vectorstore creation outside of the button click block
+    vectorstore = None
+    if st.button("Process"):
+        with st.spinner("Processing"):
+            # get pdf text
+            raw_text = get_pdf_text(pdf_docs)
+
+            # get the text chunks
+            text_chunks = get_text_chunks(raw_text)
+
+            # create vector store
+            vectorstore = get_vectorstore(text_chunks)
+
+            # create conversation chain
+            st.session_state.conversation = get_conversation_chain(
+                vectorstore, OPENAI_API_KEY, HUGGINGFACEHUB_API_TOKEN)
+
+    # Rest of your code...
+
     user_question = st.text_input("Ask a question about your documents:")
     if user_question:
         handle_userinput(user_question)
