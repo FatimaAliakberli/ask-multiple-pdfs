@@ -70,9 +70,15 @@ def main():
     st.set_page_config(page_title="Chat with multiple PDFs", page_icon=":books:")
     st.write(css, unsafe_allow_html=True)
     if "conversation" not in st.session_state:
-        st.session_state.conversation = None
+        vectorstore = get_vectorstore([])
+        OPENAI_API_KEY, HUGGINGFACEHUB_API_TOKEN = get_api_keys()
+        st.session_state.conversation = get_conversation_chain(
+            vectorstore, OPENAI_API_KEY, HUGGINGFACEHUB_API_TOKEN
+        )
+
     if "chat_history" not in st.session_state:
-        st.session_state.chat_history = None
+        st.session_state.chat_history = st.session_state.conversation.new_memory()
+
     st.header("Chat with multiple PDFs :books:")
     
     # Get API keys from user input
