@@ -11,6 +11,8 @@ from htmlTemplates import css, bot_template, user_template
 
 # Load environment variables
 load_dotenv()
+
+# Global variable to store OpenAI API key
 openai_api_key = None
 
 # Function to get text from PDFs
@@ -35,13 +37,15 @@ def get_text_chunks(text):
 
 # Function to create vector store
 def get_vectorstore(text_chunks):
-    embeddings = OpenAIEmbeddings(api_key=openai_api_key)  # Pass the API key here
+    global openai_api_key  # Use the global variable
+    embeddings = OpenAIEmbeddings(api_key=openai_api_key)
     vectorstore = FAISS.from_texts(texts=text_chunks, embedding=embeddings)
     return vectorstore
 
 # Function to create conversation chain
 def get_conversation_chain(vectorstore):
-    llm = ChatOpenAI(api_key=openai_api_key)  # Pass the API key here
+    global openai_api_key  # Use the global variable
+    llm = ChatOpenAI(api_key=openai_api_key)
     memory = ConversationBufferMemory(
         memory_key='chat_history', return_messages=True)
     conversation_chain = ConversationalRetrievalChain.from_llm(
@@ -66,6 +70,7 @@ def handle_user_input(user_question):
 
 # Streamlit app
 def main():
+    global openai_api_key  # Declare openai_api_key as a global variable
     st.set_page_config(page_title="Chat with PDFs", page_icon=":books:")
     st.write(css, unsafe_allow_html=True)
 
