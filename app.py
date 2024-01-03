@@ -64,6 +64,7 @@ def get_pdf_text(pdf_docs):
 # Function to get OpenAI API Key and Hugging Face Hub API Token from user input
 
 
+
 def get_api_keys():
     OPENAI_API_KEY, HUGGINGFACEHUB_API_TOKEN = None, None
 
@@ -77,7 +78,12 @@ def get_api_keys():
             st.info("Please fill out both OpenAI API Key and Hugging Face Hub API Token to proceed.")
             st.stop()
 
+        # Initialize conversation chain if it's None
+        if st.session_state.conversation is None:
+            st.session_state.conversation = get_conversation_chain(vectorstore, OPENAI_API_KEY, HUGGINGFACEHUB_API_TOKEN)
+
     return OPENAI_API_KEY, HUGGINGFACEHUB_API_TOKEN
+
 
 def main():
     load_dotenv()
@@ -90,13 +96,19 @@ def main():
         st.session_state.chat_history = None
 
     st.header("Chat with multiple PDFs :books:")
-    
+
     # Get API keys from user input
     OPENAI_API_KEY, HUGGINGFACEHUB_API_TOKEN = get_api_keys()
+
+    # Check and initialize the conversation if it's None
+    if st.session_state.conversation is None:
+        st.session_state.conversation = get_conversation_chain(vectorstore, OPENAI_API_KEY, HUGGINGFACEHUB_API_TOKEN)
 
     user_question = st.text_input("Ask a question about your documents:")
     if user_question:
         handle_userinput(user_question)
+
+    # Rest of your code...
 
     with st.sidebar:
         st.subheader("Your documents")
