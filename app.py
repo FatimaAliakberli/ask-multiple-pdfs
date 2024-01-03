@@ -19,7 +19,11 @@ def get_pdf_text(pdf_docs):
     return text
 
 # Function to get OpenAI API Key and Hugging Face Hub API Token from user input
+
+
 def get_api_keys():
+    OPENAI_API_KEY, HUGGINGFACEHUB_API_TOKEN = None, None
+
     with st.form("user_input"):
         OPENAI_API_KEY = st.text_input("Enter your OpenAI API Key:", placeholder="sk-XXXX", type='password')
         HUGGINGFACEHUB_API_TOKEN = st.text_input("Enter your Hugging Face Hub API Token:", placeholder="your-token", type='password')
@@ -30,7 +34,7 @@ def get_api_keys():
             st.info("Please fill out both OpenAI API Key and Hugging Face Hub API Token to proceed.")
             st.stop()
 
-        return OPENAI_API_KEY, HUGGINGFACEHUB_API_TOKEN
+    return OPENAI_API_KEY, HUGGINGFACEHUB_API_TOKEN
 
 def main():
     load_dotenv()
