@@ -12,9 +12,6 @@ from htmlTemplates import css, bot_template, user_template
 # Load environment variables
 load_dotenv()
 
-# Global variable to store OpenAI API key
-openai_api_key = None
-
 # Function to get text from PDFs
 def get_pdf_text(pdf_docs):
     text = ""
@@ -37,14 +34,12 @@ def get_text_chunks(text):
 
 # Function to create vector store
 def get_vectorstore(text_chunks):
-    global openai_api_key  # Use the global variable
-    embeddings = OpenAIEmbeddings(api_key=openai_api_key)
+    embeddings = OpenAIEmbeddings()
     vectorstore = FAISS.from_texts(texts=text_chunks, embedding=embeddings)
     return vectorstore
 
 # Function to create conversation chain
-def get_conversation_chain(vectorstore):
-    global openai_api_key  # Use the global variable
+def get_conversation_chain(vectorstore, openai_api_key):
     llm = ChatOpenAI(api_key=openai_api_key)
     memory = ConversationBufferMemory(
         memory_key='chat_history', return_messages=True)
@@ -56,7 +51,7 @@ def get_conversation_chain(vectorstore):
     return conversation_chain
 
 # Function to handle user input and display conversation
-def handle_user_input(user_question):
+def handle_user_input(user_question, openai_api_key):
     response = st.session_state.conversation({'question': user_question})
     st.session_state.chat_history = response['chat_history']
 
@@ -70,7 +65,6 @@ def handle_user_input(user_question):
 
 # Streamlit app
 def main():
-    global openai_api_key  # Declare openai_api_key as a global variable
     st.set_page_config(page_title="Chat with PDFs", page_icon=":books:")
     st.write(css, unsafe_allow_html=True)
 
@@ -82,15 +76,13 @@ def main():
     st.header("Chat with PDFs :books:")
     user_question = st.text_input("Ask a question about your documents:")
 
-    # Check if user provided OpenAI API key
     openai_api_key = st.text_input("Enter your OpenAI API Key:", type='password')
-
     if not openai_api_key:
-        st.warning("Please enter your OpenAI API Key to use the conversational functionality.")
+        st.warning("Please enter your OpenAI API Key.")
         st.stop()
 
     if user_question:
-        handle_user_input(user_question)
+        handle_user_input(user_question, openai_api_key)
 
     with st.sidebar:
         st.subheader("Your documents")
@@ -109,7 +101,7 @@ def main():
 
                 # create conversation chain
                 st.session_state.conversation = get_conversation_chain(
-                    vectorstore)
+                    vectorstore, openai_api_key)
 
 if __name__ == '__main__':
     main()
