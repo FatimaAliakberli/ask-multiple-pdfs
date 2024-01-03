@@ -10,6 +10,14 @@ from langchain.chains import ConversationalRetrievalChain
 from htmlTemplates import css, bot_template, user_template
 from langchain.llms import HuggingFaceHub
 
+
+def get_text_chunks(text):
+    # Split the text into chunks of a fixed size (e.g., 1000 characters)
+    chunk_size = 1000
+    chunks = [text[i:i + chunk_size] for i in range(0, len(text), chunk_size)]
+    return chunks
+
+
 def get_pdf_text(pdf_docs):
     text = ""
     for pdf in pdf_docs:
