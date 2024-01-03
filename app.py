@@ -10,6 +10,28 @@ from langchain.chains import ConversationalRetrievalChain
 from htmlTemplates import css, bot_template, user_template
 from langchain.llms import HuggingFaceHub
 
+# Add the missing get_vectorstore function
+def get_vectorstore(text_chunks):
+    embeddings = OpenAIEmbeddings()
+    # embeddings = HuggingFaceInstructEmbeddings(model_name="hkunlp/instructor-xl")
+    vectorstore = FAISS.from_texts(texts=text_chunks, embedding=embeddings)
+    return vectorstore
+
+# Modify the get_conversation_chain function to accept API keys
+def get_conversation_chain(vectorstore, openai_api_key, huggingfacehub_api_token):
+    llm = ChatOpenAI(api_key=openai_api_key)
+    # llm = HuggingFaceHub(repo_id="google/flan-t5-xxl", model_kwargs={"temperature":0.5, "max_length":512}, api_token=huggingfacehub_api_token)
+
+    memory = ConversationBufferMemory(
+        memory_key='chat_history', return_messages=True)
+    conversation_chain = ConversationalRetrievalChain.from_llm(
+        llm=llm,
+        retriever=vectorstore.as_retriever(),
+        memory=memory
+    )
+    return conversation_chain
+
+
 
 def get_text_chunks(text):
     # Split the text into chunks of a fixed size (e.g., 1000 characters)
