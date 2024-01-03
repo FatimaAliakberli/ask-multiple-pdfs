@@ -124,10 +124,12 @@ def main():
     # Rest of your code...
 
     user_question = st.text_input("Ask a question about your documents:")
+
+    
+    vectorstore = None
+
     if user_question:
         handle_userinput(user_question)
-
-    # Rest of your code...
 
     with st.sidebar:
         st.subheader("Your documents")
@@ -135,18 +137,18 @@ def main():
             "Upload your PDFs here and click on 'Process'", accept_multiple_files=True)
         if st.button("Process"):
             with st.spinner("Processing"):
-                # get pdf text
+            # get pdf text
                 raw_text = get_pdf_text(pdf_docs)
 
-                # get the text chunks
+            # get the text chunks
                 text_chunks = get_text_chunks(raw_text)
 
-                # create vector store
+            # create vector store
                 vectorstore = get_vectorstore(text_chunks)
 
-                # create conversation chain
+            # create conversation chain
                 st.session_state.conversation = get_conversation_chain(
-                    vectorstore, OPENAI_API_KEY, HUGGINGFACEHUB_API_TOKEN)
+                    vectorstore)
 
 # Modify get_conversation_chain function to accept API keys
 def get_conversation_chain(vectorstore, openai_api_key, huggingfacehub_api_token):
