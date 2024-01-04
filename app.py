@@ -48,6 +48,10 @@ def get_conversation_chain(vectorstore):
     return conversation_chain
 
 def handle_userinput(user_question):
+    if st.session_state.conversation is None:
+        st.session_state.conversation = get_conversation_chain(
+            st.session_state.vectorstore)
+
     response = st.session_state.conversation({'question': user_question})
     st.session_state.chat_history = response['chat_history']
 
@@ -72,6 +76,8 @@ def main():
     if openai_api_key_submitted:
         st.session_state.openai_api_key = openai_api_key
 
+    if "vectorstore" not in st.session_state:
+        st.session_state.vectorstore = None
     if "conversation" not in st.session_state:
         st.session_state.conversation = None
     if "chat_history" not in st.session_state:
@@ -95,11 +101,11 @@ def main():
                 text_chunks = get_text_chunks(raw_text)
 
                 # create vector store
-                vectorstore = get_vectorstore(text_chunks)
+                st.session_state.vectorstore = get_vectorstore(text_chunks)
 
                 # create conversation chain
                 st.session_state.conversation = get_conversation_chain(
-                    vectorstore)
+                    st.session_state.vectorstore)
 
 if __name__ == '__main__':
     main()
